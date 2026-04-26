@@ -2,21 +2,22 @@
 header('ngrok-skip-browser-warning: true');
 session_start();
 
-$salt   = "XyZzy12*&";
-$stored = sha1($salt . "1234"); // password คือ 1234
-$error  = "";
+// Salt และ stored hash ตามที่ spec กำหนด
+$salt        = 'XyZzy12*_';
+$stored_hash = '1a52e17fa899cf40fb04cfc42e6352f1';
+$error       = '';
 
-if ( isset($_POST['name']) && isset($_POST['password']) ) {
-    $name     = trim($_POST['name']);
-    $password = trim($_POST['password']);
+if ( isset($_POST['who']) ) {
+    $who  = trim($_POST['who']);
+    $pass = trim($_POST['pass']);
 
-    if ( strlen($name) < 1 || strlen($password) < 1 ) {
-        $error = "Email and password are required";
+    if ( strlen($who) < 1 || strlen($pass) < 1 ) {
+        $error = "User name and password are required";
     } else {
-        $check = sha1($salt . $password);
-        if ( $check === $stored ) {
-            $_SESSION['name'] = $name;
-            header("Location: game.php?name=" . urlencode($name));
+        $check = hash('md5', $salt . $pass);
+        if ( $check === $stored_hash ) {
+            $_SESSION['name'] = $who;
+            header("Location: game.php?name=" . urlencode($who));
             return;
         } else {
             $error = "Incorrect password";
@@ -28,7 +29,7 @@ if ( isset($_POST['name']) && isset($_POST['password']) ) {
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>739ea849 Phontanasak Kamfak Rock Paper Scissors</title>
+    <title>739ea849 Phontanasak Kamfak Rock Paper Scissors - Login</title>
     <style>
         body { font-family: Arial, sans-serif; max-width: 420px; margin: 60px auto; background: #f5f5f5; color: #333; }
         h1 { color: #2c3e50; }
@@ -45,12 +46,11 @@ if ( isset($_POST['name']) && isset($_POST['password']) ) {
         <div class="error"><?php echo htmlspecialchars($error); ?></div>
     <?php endif; ?>
     <form method="POST" action="login.php">
-        <label>Name/Email:</label>
-        <input type="text" name="name" value="<?php echo isset($_POST['name']) ? htmlspecialchars($_POST['name']) : ''; ?>">
+        <label>Name:</label>
+        <input type="text" name="who">
         <label>Password:</label>
-        <input type="password" name="password">
+        <input type="password" name="pass">
         <input type="submit" value="Log In">
     </form>
-    <p style="font-size:13px; color:#999; margin-top:16px;">Password hint: 1234</p>
 </body>
 </html>
